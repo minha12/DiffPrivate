@@ -1,0 +1,76 @@
+defaults:
+  - _self_
+
+# Paths and directories
+paths:
+  save_dir: "output"
+  images_root: "./data/demo/images"
+  target_image: "./data/target_imgs/00187.jpg"
+  pretrained_diffusion_path: "stabilityai/stable-diffusion-2-base"
+
+# Model settings
+model:
+  attacker_model: "irse50"
+  victim_model: "irse50"
+  list_attacker_models: ["irse50"]
+  ensemble: false
+  ensemble_mode: "mean"
+
+# Attack parameters
+attack:
+  targeted_attack: true
+  balance_target: false
+  fix_interations: false
+  learning_rate: 0.01
+  early_penalty: false
+  max_iter: 250
+  threshold: 0.4
+  victim_threshold: 0.4
+  list_thresholds: [1.0]
+  overhead: 0.0
+  normalize_id_loss: false
+  sigmoid_id: false
+  object_caption: "a person"
+  attack_loss_weight: 1
+  lpips_loss_weight: 0.6
+  cross_attn_loss_weight: 10000
+  self_attn_loss_weight: 100
+
+# Diffusion settings
+diffusion:
+  diffusion_steps: 20
+  start_step: 15
+  iterations: 10
+  res: 256
+  is_apply_mask: true
+  is_hard_mask: false
+  guidance: 2.5
+  self_replace_steps: 1.0
+
+# Thresholds for identity loss functions
+thresholds:
+  irse50: 0.412
+  ir152: 0.42
+  facenet: 0.36
+  cur_face: 0.43
+  mobile_face: 0.425
+
+# Constants used in the code
+constants:
+  latent_scale: 0.18215
+  init_mask_scale: 1.2
+  hard_mask_threshold: 0.5
+
+# ID Loss specific settings
+id_loss:
+  face_crop:
+    start_h: 35
+    end_h: 223
+    start_w: 32
+    end_w: 220
+  model_weights_dir: "./model-weights"
+  distance_metric: 1
+  pool_size: 256
+  face_pool_sizes:
+    default: 112
+    facenet: 160

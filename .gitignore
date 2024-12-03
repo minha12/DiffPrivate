@@ -1,0 +1,11 @@
+.idea
+__pycache__
+**/__pycache__
+/model-weights/
+/outputs/
+
+*.pyc
+*.pyo
+.vscode/
+*.egg-info/
+.DS_Store
