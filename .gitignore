@@ -9,3 +9,5 @@ __pycache__
 .vscode/
 *.egg-info/
 .DS_Store
+
+/data/output_*
