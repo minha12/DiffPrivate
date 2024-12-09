@@ -1,5 +1,5 @@
 from diffusers import StableDiffusionPipeline, DDIMScheduler
-from src.attention_control import AttentionControlEdit
+from src.attCtr import AttentionControlEdit
 import src.diffprivate as diffprivate
 from PIL import Image
 import os
@@ -22,10 +22,9 @@ def main(cfg: DictConfig):
     save_dir = cfg.paths.save_dir  # Where to save the adversarial examples, and other results.
     os.makedirs(save_dir, exist_ok=True)
 
-    "If you set 'is_test' to True, please turn 'images_root' to the path of the output results' path."
+    
     images_root = cfg.paths.images_root  # The clean images' root directory.
 
-    # Change the path to "stabilityai/stable-diffusion-2-base" if you want to use the pretrained model.
     pretrained_diffusion_path = cfg.paths.pretrained_diffusion_path
 
     ldm_stable = StableDiffusionPipeline.from_pretrained(pretrained_diffusion_path).to(
@@ -54,7 +53,7 @@ def main(cfg: DictConfig):
             cfg.diffusion.res,
         )
 
-        adv_image, clean_acc, adv_acc = diffprivate.protect(
+        _, clean_acc, adv_acc = diffprivate.protect(
             model=ldm_stable,
             controller=controller,
             args=cfg,
