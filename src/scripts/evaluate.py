@@ -1,7 +1,7 @@
 import torch
 import numpy as np
 from PIL import Image
-from src.criteria.id_loss import IdLost
+from criteria.id_loss import IdLost
 import argparse
 import os
 from tqdm import tqdm

@@ -9,7 +9,7 @@ from src.utils import tensor2pil2tensor
 
 from src.utils import preprocess, save_results
 
-from src.criteria.id_loss import IdLost, EnsembleIdLost
+from criteria.id_loss import IdLost, EnsembleIdLost
 
 
 def normalizedIdLoss(x, threshold=0.412, apply_sigmoid=True):
