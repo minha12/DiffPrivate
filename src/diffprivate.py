@@ -5,10 +5,9 @@ import torch
 from PIL import Image
 from tqdm import tqdm
 from torch import optim
-from src.criteria.clip_distance import clip_distance
-from src.criteria.id_loss import normalizedIdLoss, sigmoid
+from criteria.id_loss import normalizedIdLoss, sigmoid
 from src.utils import tensor2pil2tensor
-from src.attention_control import (
+from src.attCtr import (
     ddim_reverse_sample,
     diffusion_step,
     optimize_unconditional_embeds,
@@ -17,9 +16,9 @@ from src.attention_control import (
 )
 
 from src.utils import post_process, preprocess, save_results, aggregate_attention
-from src.criteria.lpips.lpips import LPIPS
-
-from src.criteria.id_loss import IdLost, EnsembleIdLost
+from criteria.lpips.lpips import LPIPS
+from criteria.clip_loss import CLIPLoss
+from criteria.id_loss import IdLost, EnsembleIdLost
 
 
 @torch.enable_grad()
@@ -115,6 +114,7 @@ def protect(
     lr = args.attack.learning_rate
     optimizer = optim.AdamW([latent], lr=lr)
     lpip = LPIPS()
+    clip_loss = CLIPLoss()
 
     pbar = tqdm(range(iterations), desc="Iterations")
     success = False
@@ -223,7 +223,7 @@ def protect(
 
         reload_image = tensor2pil2tensor(args.diffusion.res, out_image)
         id_distance = frs_model(reload_image, init_image).detach().cpu().numpy()
-        clip_dist = clip_distance(reload_image, init_image).detach().cpu().numpy()
+        clip_dist = clip_loss.clip_distance(reload_image, init_image).detach().cpu().numpy()
 
         if verbose:
             pbar.set_postfix_str(
