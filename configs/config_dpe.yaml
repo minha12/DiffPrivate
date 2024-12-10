@@ -1,0 +1,22 @@
+
+src_path: "./data/demo/images"
+targeted_attack: True
+img_size: 256
+attacker_model: "irse50"
+semantic_editting: True
+victim_model: "facenet"
+victim_threshold: 0.4
+overhead: 0.05
+max_iter: 150
+tar_path: "../target_imgs/01420.jpg"
+tar_attr: "Attractive"
+strength: 0.25
+step: 20
+l2_lambda: 1.0
+id_lambda: 10.0
+lpips_lambda: 1.0
+use_seed: false
+seed: 2
+lr_rampup: 0.01
+lr: 0.1
+results_dir: "data/results"
