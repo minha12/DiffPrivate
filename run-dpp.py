@@ -1,6 +1,6 @@
 from diffusers import StableDiffusionPipeline, DDIMScheduler
 from src.attCtr import AttentionControlEdit
-import src.diffprivate as diffprivate
+import src.diffprivate_pert as diffprivate_pert
 from PIL import Image
 import os
 import glob
@@ -52,7 +52,7 @@ def main(cfg: DictConfig):
             cfg.diffusion.res,
         )
 
-        _, clean_acc, adv_acc = diffprivate.protect(
+        _, clean_acc, adv_acc = diffprivate_pert.protect(
             model=ldm_stable,
             controller=controller,
             args=cfg,
