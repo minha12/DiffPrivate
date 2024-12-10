@@ -62,21 +62,23 @@ This repository is the official implementation of **DiffPrivate**. If you have a
    - For comprehensive experiments, use your own facial image datasets or public datasets compatible with the framework.
 
 4. **Pre-trained Models**
-   - **Stable Diffusion**: We use Stable Diffusion 2.0 as the diffusion model. Load it by setting `pretrained_diffusion_path="stabilityai/stable-diffusion-2-base"` in 
+   - **Stable Diffusion**: We use Stable Diffusion 2.0 as the diffusion model. Load it by setting `pretrained_diffusion_path="stabilityai/stable-diffusion-2-base"` in `config.yaml`
 
-config.yaml
+5. **Additional Dependencies for DiffPrivate Edit**
+   - For **DiffPrivate Edit**, clone the [DiffAE repository](https://github.com/minha12/DiffAE.git) into the `./src/` directory:
 
-.
-   - **Facial Recognition Models**: Pre-trained models used for evaluations can be downloaded and placed in the `pretrained_models` directory.
+     ```bash
+     git clone https://github.com/minha12/DiffAE.git ./src/DiffAE
+     ```
 
 ## Usage
 
 ### Crafting Privacy-Protected Images
 
-To generate privacy-protected images, run:
+To generate privacy-protected images using **DiffPrivate Perturb**, run:
 
 ```bash
-python main.py paths.images_root=<path_to_images> paths.save_dir=<save_path>
+python run-dpp.py paths.images_root=<path_to_images> paths.save_dir=<save_path>
 ```
 
 - Replace `<path_to_images>` with the path to your images.
@@ -85,7 +87,7 @@ python main.py paths.images_root=<path_to_images> paths.save_dir=<save_path>
 Examples:
 
 ```bash
-python main.py paths.images_root=./data/demo/images paths.save_dir=./data/output
+python run-dpp.py paths.images_root=./data/demo/images paths.save_dir=./data/output
 ```
 
 The results, including the protected images and logs, will be saved in the specified `save_dir`.
