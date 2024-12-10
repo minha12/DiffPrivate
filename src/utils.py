@@ -1,13 +1,22 @@
-# from distances import LpDistance
+from abc import ABC, abstractmethod
+from contextlib import contextmanager
 from datetime import datetime
+from io import BytesIO
+from multiprocessing import Process, Queue
 import json
 import os
+import random
+import shutil
+
+import cv2
+import eagerpy as ep
+import lmdb
 import numpy as np
 import torch
+import torch.backends.cudnn
 from PIL import Image
-import cv2
-from typing import Tuple
-import random
+from typing import Tuple, TypeVar
+from torch.utils.data import Dataset
 
 def aggregate_attention(
     prompts,
@@ -61,10 +70,10 @@ def show_cross_attention(
         images.append(image)
     for image in images:
         print(image.shape)
-    view_images(np.stack(images, axis=0), save_path=save_path)
+    render_image_grid(np.stack(images, axis=0), save_path=save_path)
 
 
-def view_images(images, num_rows=1, offset_ratio=0.02, save_path=None, show=False):
+def render_image_grid(images, num_rows=1, offset_ratio=0.02, save_path=None, show=False):
     if type(images) is list:
         num_empty = len(images) % num_rows
     elif images.ndim == 4:
@@ -261,8 +270,6 @@ def get_datetime_prefix():
     return prefix
 
 
-# Remove @dataclass Config class and ConfigStore
-
 def seed_torch(seed=42):
     """For reproducibility"""
     random.seed(seed)
@@ -273,3 +280,204 @@ def seed_torch(seed=42):
     torch.cuda.manual_seed_all(seed)
     torch.backends.cudnn.benchmark = False
     torch.backends.cudnn.deterministic = True
+
+
+def flatten(x: ep.Tensor, keep: int = 1) -> ep.Tensor:
+    return x.flatten(start=keep)
+
+def atleast_kd(x: ep.Tensor, k: int) -> ep.Tensor:
+    shape = x.shape + (1,) * (k - x.ndim)
+    return x.reshape(shape)
+
+T = TypeVar("T")
+
+class Distance(ABC):
+    @abstractmethod
+    def __call__(self, reference: T, perturbed: T) -> T: ...
+
+    @abstractmethod
+    def clip_perturbation(self, references: T, perturbed: T, epsilon: float) -> T: ...
+
+class LpDistance(Distance):
+    def __init__(self, p: float):
+        self.p = p
+
+    def __repr__(self) -> str:
+        return f"LpDistance({self.p})"
+
+    def __str__(self) -> str:
+        return f"L{self.p} distance"
+
+    def __call__(self, references: T, perturbed: T) -> T:
+        (x, y), restore_type = ep.astensors_(references, perturbed)
+        norms = ep.norms.lp(flatten(y - x), self.p, axis=-1)
+        return restore_type(norms)
+
+    def clip_perturbation(self, references: T, perturbed: T, epsilon: float) -> T:
+        (x, y), restore_type = ep.astensors_(references, perturbed)
+        p = y - x
+        if self.p == ep.inf:
+            clipped_perturbation = ep.clip(p, -epsilon, epsilon)
+            return restore_type(x + clipped_perturbation)
+        norms = ep.norms.lp(flatten(p), self.p, axis=-1)
+        norms = ep.maximum(norms, 1e-12)  # avoid division by zero
+        factor = epsilon / norms
+        factor = ep.minimum(1, factor)
+        if self.p == 0:
+            if (factor == 1).all():
+                return perturbed
+            raise NotImplementedError("reducing L0 norms not yet supported")
+        factor = atleast_kd(factor, x.ndim)
+        clipped_perturbation = factor * p
+        return restore_type(x + clipped_perturbation)
+
+def save_edited_results(image, model_name, save_path, init_image):
+    real = (init_image / 2 + 0.5).clamp(0, 1).permute(0, 2, 3, 1).cpu().numpy()
+    perturbed = image
+    image = (perturbed * 255).astype(np.uint8)
+    render_image_grid(
+        np.concatenate([real, perturbed]) * 255,
+        show=False,
+        save_path=save_path
+        + "_diff_{}_image_{}.png".format(
+            model_name, "ATKSuccess"
+        ),
+    )
+    render_image_grid(perturbed * 255, show=False, save_path=save_path + "_adv_image.png")
+
+    L1 = LpDistance(1)
+    L2 = LpDistance(2)
+    Linf = LpDistance(float("inf"))
+
+    print(
+        "L1: {}\tL2: {}\tLinf: {}".format(
+            L1(real, perturbed), L2(real, perturbed), Linf(real, perturbed)
+        )
+    )
+
+    diff = perturbed - real
+    diff = (diff - diff.min()) / (diff.max() - diff.min()) * 255
+
+    render_image_grid(
+        diff.clip(0, 255), show=False, save_path=save_path + "_diff_relative.png"
+    )
+
+    diff = (np.abs(perturbed - real) * 255).astype(np.uint8)
+    render_image_grid(
+        diff.clip(0, 255), show=False, save_path=save_path + "_diff_absolute.png"
+    )
+
+    return image
+
+def preprocess_image_imagenet_norm(img):
+    out_img = (img / 2 + 0.5).clamp(0, 1)
+    out_img = out_img.permute(0, 2, 3, 1)
+    mean = torch.as_tensor(
+        [0.485, 0.456, 0.406], dtype=out_img.dtype, device=out_img.device
+    )
+    std = torch.as_tensor(
+        [0.229, 0.224, 0.225], dtype=out_img.dtype, device=out_img.device
+    )
+    out_img = out_img[:, :, :].sub(mean).div(std)
+    out_img = out_img.permute(0, 3, 1, 2)
+    return out_img
+
+def tensor2numpy(image):
+    image = image.detach().permute(0, 2, 3, 1)
+    image = image.cpu().numpy()
+    return image
+
+def convert(x, format, quality=100):
+    torch.set_num_threads(1)
+    buffer = BytesIO()
+    x = x.mul(255).add_(0.5).clamp_(0, 255).permute(1, 2, 0)
+    x = x.to(torch.uint8)
+    x = x.numpy()
+    img = Image.fromarray(x)
+    img.save(buffer, format=format, quality=quality)
+    val = buffer.getvalue()
+    return val
+
+@contextmanager
+def nullcontext():
+    yield
+
+class _WriterWroker(Process):
+    def __init__(self, path, format, quality, zfill, q):
+        super().__init__()
+        if os.path.exists(path):
+            shutil.rmtree(path)
+        self.path = path
+        self.format = format
+        self.quality = quality
+        self.zfill = zfill
+        self.q = q
+        self.i = 0
+
+    def run(self):
+        if not os.path.exists(self.path):
+            os.makedirs(self.path)
+        with lmdb.open(self.path, map_size=1024**4, readahead=False) as env:
+            while True:
+                job = self.q.get()
+                if job is None:
+                    break
+                with env.begin(write=True) as txn:
+                    for x in job:
+                        key = f"{str(self.i).zfill(self.zfill)}".encode("utf-8")
+                        x = convert(x, self.format, self.quality)
+                        txn.put(key, x)
+                        self.i += 1
+            with env.begin(write=True) as txn:
+                txn.put("length".encode("utf-8"), str(self.i).encode("utf-8"))
+
+class LMDBImageWriter:
+    def __init__(self, path, format="webp", quality=100, zfill=7) -> None:
+        self.path = path
+        self.format = format
+        self.quality = quality
+        self.zfill = zfill
+        self.queue = None
+        self.worker = None
+
+    def __enter__(self):
+        self.queue = Queue(maxsize=3)
+        self.worker = _WriterWroker(
+            self.path, self.format, self.quality, self.zfill, self.queue
+        )
+        self.worker.start()
+
+    def put_images(self, tensor):
+        self.queue.put(tensor.cpu())
+
+    def __exit__(self, *args, **kwargs):
+        self.queue.put(None)
+        self.queue.close()
+        self.worker.join()
+
+class LMDBImageReader(Dataset):
+    def __init__(self, path, zfill: int = 7):
+        self.zfill = zfill
+        self.env = lmdb.open(
+            path,
+            max_readers=32,
+            readonly=True,
+            lock=False,
+            readahead=False,
+            meminit=False,
+        )
+        if not self.env:
+            raise IOError("Cannot open lmdb dataset", path)
+        with self.env.begin(write=False) as txn:
+            self.length = int(txn.get("length".encode("utf-8")).decode("utf-8"))
+
+    def __len__(self):
+        return self.length
+
+    def __getitem__(self, index):
+        with self.env.begin(write=False) as txn:
+            key = f"{str(index).zfill(self.zfill)}".encode("utf-8")
+            img_bytes = txn.get(key)
+        buffer = BytesIO(img_bytes)
+        img = Image.open(buffer)
+        return img

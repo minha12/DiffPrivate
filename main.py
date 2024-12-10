@@ -21,7 +21,6 @@ def main(cfg: DictConfig):
 
     save_dir = cfg.paths.save_dir  # Where to save the adversarial examples, and other results.
     os.makedirs(save_dir, exist_ok=True)
-
     
     images_root = cfg.paths.images_root  # The clean images' root directory.
 

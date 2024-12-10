@@ -11,3 +11,6 @@ outputs/
 .DS_Store
 
 data/output*
+data/results*
+
+src/DiffAE/

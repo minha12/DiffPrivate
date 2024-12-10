@@ -20,7 +20,6 @@ from criteria.lpips.lpips import LPIPS
 from criteria.clip_loss import CLIPLoss
 from criteria.id_loss import IdLost, EnsembleIdLost
 
-
 @torch.enable_grad()
 def protect(
     model,
