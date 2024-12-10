@@ -9,3 +9,5 @@ Pillow==9.2.0
 scipy==1.7.1
 timm==0.4.12
 tqdm==4.62.2
+pytorch-lightning==1.6.5
+criteria
