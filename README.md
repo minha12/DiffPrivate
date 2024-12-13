@@ -38,7 +38,7 @@ This repository is the official implementation of **DiffPrivate**. If you have a
 
 **DiffPrivate** is a novel framework for facial privacy protection using diffusion models. By leveraging the generative capabilities of diffusion models, we create privacy-preserving transformations of facial images that protect personal identity while maintaining visual realism. Our approach ensures that the protected images are imperceptible to human observers but effectively prevent recognition by facial recognition systems.
 
-![DiffPrivate Framework](Figs/Framework.png)
+![DiffPrivate Framework](assets/diffprivate-v04b.png)
 
 ## Requirements
 
