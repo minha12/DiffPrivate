@@ -12,5 +12,6 @@ outputs/
 
 data/output*
 data/results*
+data/logs*
 
 src/DiffAE/

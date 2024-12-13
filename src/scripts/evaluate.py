@@ -2,57 +2,11 @@ import torch
 import numpy as np
 from PIL import Image
 from criteria.id_loss import IdLost
-import argparse
+from criteria.lpips.lpips import LPIPS
+import hydra
+from omegaconf import DictConfig
 import os
 from tqdm import tqdm
-
-threshold_dict = {
-    "irse50": 0.4,
-    "ir152": 0.4277,
-    "facenet": 0.33519999999999994,
-    "cur_face": 0.4332,
-    "mobile_face": 0.3875,
-}
-
-
-def arg_parser():
-
-    parser = argparse.ArgumentParser(description="DiffPure")
-    parser.add_argument(
-        "--data_folder", type=str, default="./output", help="Data folder"
-    )
-    parser.add_argument(
-        "--ignore_extension",
-        type=bool,
-        default=False,
-        help="Whether to ignore file extension",
-    )
-    parser.add_argument(
-        "--adv_folder", type=str, default="./output", help="Adversarial data folder"
-    )
-    parser.add_argument(
-        "--clean_folder", type=str, default="./output", help="Clean data folder"
-    )
-    parser.add_argument(
-        "--folder_type",
-        type=str,
-        default="single",
-        help="Type of folder (single or separate, fawkes)",
-    )
-    parser.add_argument(
-        "--threshold",
-        type=str,
-        default="0.412",
-        help="Threshold for facial recognition",
-    )
-    parser.add_argument(
-        "--log_dir",
-        type=str,
-        default="./logs",
-    )
-
-    return parser
-
 
 def find_image_pairs(folder_path):
     # Suffixes to identify the original and adversarial images
@@ -64,7 +18,6 @@ def find_image_pairs(folder_path):
 
     # List all files in the given folder
     for file in os.listdir(folder_path):
-        # print(file)
         if file.endswith(suffix_origin) or file.endswith(suffix_adv):
             # Extract prefix (assuming fixed length prefixes, e.g., "0000")
             prefix = file.split("_")[0]
@@ -77,14 +30,12 @@ def find_image_pairs(folder_path):
                 image_pairs[prefix]["origin"] = os.path.join(folder_path, file)
             elif file.endswith(suffix_adv):
                 image_pairs[prefix]["adv"] = os.path.join(folder_path, file)
-    print(image_pairs)
     # Filter out incomplete pairs
     complete_pairs = [
         (pair["origin"], pair["adv"])
         for pair in image_pairs.values()
         if pair["origin"] and pair["adv"]
     ]
-    # print(complete_pairs)
     return complete_pairs
 
 
@@ -110,14 +61,13 @@ def find_matching_pairs_fawkes(original_folder, cloaked_folder):
                 cloaked_path = os.path.join(cloaked_folder, cloaked_file)
                 matching_pairs[prefix] = {
                     "origin": original_files[prefix],
-                    "cloaked": cloaked_path,
+                    "adv": cloaked_path,
                 }
 
     # Convert dictionary values to a list of tuples for the final output
     complete_pairs = [
-        (value["origin"], value["cloaked"]) for key, value in matching_pairs.items()
+        (value["origin"], value["adv"]) for key, value in matching_pairs.items()
     ]
-
     return complete_pairs
 
 
@@ -126,29 +76,24 @@ def process_filename(filename, ignore_extensions):
     return os.path.splitext(filename)[0] if ignore_extensions else filename
 
 
-# Dictionary to store image pairs with the processed filename as the key
-image_pairs = {}
-
-
 # Function to process and gather filenames based on the ignore_extensions flag
 def gather_files(folder, ignore_extensions):
     files = os.listdir(folder)
     if ignore_extensions:
         # Remove extensions for comparison
         processed_files = {
-            process_filename(f, True): f for f in files if f.endswith((".jpg", ".png"))
+            process_filename(f, True): f for f in files if f.lower().endswith((".jpg", ".png"))
         }
     else:
         # Keep original filenames for comparison
-        processed_files = {f: f for f in files if f.endswith((".jpg", ".png"))}
+        processed_files = {f: f for f in files if f.lower().endswith((".jpg", ".png"))}
     return processed_files
 
 
-def find_image_pairs_from_folder(folder_original, folder_adv, ignore_extensions=True):
-
+def find_image_pairs_from_folder(folder_original, folder_adv, ignore_extensions):
+    image_pairs = {}
     # Gather all image filenames from both folders with or without extensions
     original_files = gather_files(folder_original, ignore_extensions)
-
     adv_files = gather_files(folder_adv, ignore_extensions)
 
     # Find matching filenames (with or without extensions) in both folders
@@ -164,7 +109,6 @@ def find_image_pairs_from_folder(folder_original, folder_adv, ignore_extensions=
     complete_pairs = [
         (value["origin"], value["adv"]) for key, value in image_pairs.items()
     ]
-
     return complete_pairs
 
 
@@ -179,68 +123,100 @@ def preprocess(image, res=256):
 
 def load_and_preprocess_image(path):
     """Load and preprocess an image."""
-    img = Image.open(path)
+    img = Image.open(path).convert('RGB')
     return preprocess(img)
 
 
-def run(args):
-    if args.folder_type == "separate":
+@hydra.main(version_base=None, config_path="../../configs", config_name="eval_config")
+def main(cfg: DictConfig):
+    # Load thresholds from config
+    threshold_dict = {key: float(value) for key, value in cfg.thresholds.items()}
+
+    if cfg.evaluation.folder_type == "separate":
         pairs = find_image_pairs_from_folder(
-            args.data_folder, args.adv_folder, args.ignore_extension
+            cfg.evaluation.clean_folder,
+            cfg.evaluation.adv_folder,
+            cfg.evaluation.ignore_extension,
         )
-    elif args.folder_type == "fawkes":
-        pairs = find_matching_pairs_fawkes(args.data_folder, args.adv_folder)
-    elif args.folder_type == "single":
+    elif cfg.evaluation.folder_type == "fawkes":
+        pairs = find_matching_pairs_fawkes(
+            cfg.evaluation.clean_folder,
+            cfg.evaluation.adv_folder,
+        )
+    elif cfg.evaluation.folder_type == "single":
         print("Using single folder")
-        pairs = find_image_pairs(args.data_folder)
+        pairs = find_image_pairs(cfg.evaluation.data_folder)
+    else:
+        raise ValueError("Invalid folder_type provided.")
 
-    model_names = [key for key in threshold_dict]
-
+    model_names = list(threshold_dict.keys())
     frs_models = [IdLost(model_name) for model_name in model_names]
-    # print(pairs)
+    dist_model = LPIPS().cuda()
+
     successes = []
     distances_collection = []
+    lpips_distances = []
+
     for org_path, adv_path in tqdm(pairs):
         adv_img = load_and_preprocess_image(adv_path)
         org_img = load_and_preprocess_image(org_path)
 
-        distances = np.array(
-            [
-                frs_models[i](org_img, adv_img).detach().cpu().numpy()
-                for i in range(len(threshold_dict))
-            ]
-        )
+        distances = np.array([
+            frs_models[i](org_img, adv_img).detach().cpu().numpy()
+            for i in range(len(model_names))
+        ]).flatten()
         distances_collection.append(distances)
-        sucess = distances > np.array([threshold_dict[model] for model in model_names])
-        successes.append(sucess)
 
-    success_rate = np.array(successes).astype(int).mean(axis=0)
-    avg_dist = np.array(distances_collection).mean(axis=0)
-    print(f"Success rate: {success_rate}")
-    print(f"Average distance: {avg_dist}")
-    # set log file name to the name of data_folder without the base directory
-    # create log dir if it does not exist
-    if not os.path.exists(args.log_dir):
-        os.makedirs(args.log_dir)
-    if args.folder_type == "separate" or args.folder_type == "fawkes":
-        log_path = os.path.join(
-            args.log_dir, f"{os.path.basename(os.path.normpath(args.adv_folder))}.txt"
-        )
-    if args.folder_type == "single":
-        log_path = os.path.join(
-            args.log_dir, f"{os.path.basename(os.path.normpath(args.data_folder))}.txt"
-        )
+        success = distances > np.array([threshold_dict[model] for model in model_names])
+        successes.append(success)
 
-    # add the model names and success rate to the log file
+        # Calculate LPIPS distance
+        lpips_distance = dist_model(org_img, adv_img).item()
+        lpips_distances.append(lpips_distance)
+
+    successes = np.array(successes).astype(int)
+    success_rates = successes.mean(axis=0)
+    avg_distances = np.array(distances_collection).mean(axis=0)
+    avg_lpips = np.mean(lpips_distances)
+
+    # Prepare headers and data
+    headers = ["Model", "Success Rate", "Average Distance"]
+    data = [
+        [model_names[i], f"{success_rates[i]:.4f}", f"{avg_distances[i]:.4f}"]
+        for i in range(len(model_names))
+    ]
+
+    # Print results in table format
+    print("{:<15} {:<15} {:<17}".format(*headers))
+    print("-" * 47)
+    for row in data:
+        print("{:<15} {:<15} {:<17}".format(*row))
+
+    # Print average LPIPS distance
+    print(f"\nAverage LPIPS distance: {avg_lpips:.4f}")
+
+    # Create log directory if it does not exist
+    if not os.path.exists(cfg.evaluation.log_dir):
+        os.makedirs(cfg.evaluation.log_dir)
+
+    # Set log file name
+    if cfg.evaluation.folder_type in ["separate", "fawkes"]:
+        log_filename = f"{os.path.basename(os.path.normpath(cfg.evaluation.adv_folder))}.txt"
+    elif cfg.evaluation.folder_type == "single":
+        log_filename = f"{os.path.basename(os.path.normpath(cfg.evaluation.data_folder))}.txt"
+    else:
+        log_filename = "evaluation_log.txt"
+
+    log_path = os.path.join(cfg.evaluation.log_dir, log_filename)
+
+    # Write results to the log file
     with open(log_path, "a") as f:
-        f.write(f"Model names: {model_names}\n")
-        f.write(f"Success rate: {success_rate}\n")
-        f.write(f"Average distance: {avg_dist}\n")
-
-    return success_rate
+        f.write("{:<15} {:<15} {:<17}\n".format(*headers))
+        f.write("-" * 47 + "\n")
+        for row in data:
+            f.write("{:<15} {:<15} {:<17}\n".format(*row))
+        f.write(f"\nAverage LPIPS distance: {avg_lpips:.4f}\n")
 
 
 if __name__ == "__main__":
-    parser = arg_parser()
-    args = parser.parse_args()
-    run(args)
+    main()

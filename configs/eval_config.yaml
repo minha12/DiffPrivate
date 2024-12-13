@@ -1,0 +1,20 @@
+
+defaults:
+  - _self_
+
+# Evaluation settings
+evaluation:
+  data_folder: "./data/output"         # Data folder for single folder type
+  adv_folder: "./data/output"          # Adversarial data folder
+  clean_folder: "./data/clean_images"  # Clean data folder
+  ignore_extension: false              # Whether to ignore file extension
+  folder_type: "single"                # Type of folder ("single", "separate", or "fawkes")
+  log_dir: "./data/logs"                    # Directory to save logs
+
+# Thresholds for evaluation
+thresholds:
+  irse50: 0.5
+  ir152: 0.45
+  facenet: 0.35
+  cur_face: 0.44
+  mobile_face: 0.39
