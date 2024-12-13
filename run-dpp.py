@@ -32,15 +32,15 @@ def main(cfg: DictConfig):
     ldm_stable.scheduler = DDIMScheduler.from_config(ldm_stable.scheduler.config)
 
     "Attack a subset images"
-    all_images = glob.glob(os.path.join(images_root, "*"))
+    image_paths = glob.glob(os.path.join(images_root, "*"))
     # Filter only .png and .jpg files
-    all_images = [img for img in all_images if img.lower().endswith((".png", ".jpg"))]
-    all_images = natsorted(all_images, alg=ns.PATH)
+    image_paths = [img for img in image_paths if img.lower().endswith((".png", ".jpg"))]
+    image_paths = natsorted(image_paths, alg=ns.PATH)
 
     blackbox_frs_distances = []
     blackbox_frs_recognition = []
 
-    for ind, image_path in enumerate(all_images):
+    for image_path in image_paths:
         image = Image.open(image_path).convert("RGB")
         # get image name without extension
         image_name = os.path.basename(image_path).split(".")[0]
