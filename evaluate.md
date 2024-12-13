@@ -26,30 +26,25 @@ To override the input (`images_root`) and output (`save_dir`) paths, use the fol
 python run-dpp.py \
   paths.images_root=/path/to/your/input_images \
   paths.save_dir=/path/to/your/output_results \
-  paths.pretrained_diffusion_path=/path/to/pretrained/diffusion/model
 ```
 
 **Parameters:**
 
 - `paths.images_root`: Path to the directory containing your input images.
 - `paths.save_dir`: Path to the directory where you want to save the results (both original and adversarial images).
-- `paths.pretrained_diffusion_path`: Path to the pretrained diffusion model.
 
 **Example:**
 
 ```bash
 python run-dpp.py \
-  paths.images_root=./data/clean_images \
-  paths.save_dir=./results/adversarial_examples \
-  paths.pretrained_diffusion_path=./models/stable-diffusion
+  paths.images_root=./data/ffhq \
+  paths.save_dir=./data/ffhq_outputs \
 ```
 
 **Explanation:**
 
 - This command runs `run-dpp.py` with the specified input and output paths.
-- The script will process all images in `./data/clean_images` and save the results in `./results/adversarial_examples`.
-- The pretrained diffusion model is loaded from `./models/stable-diffusion`.
-
+- The script will process all images in `./data/ffhq` and save the results in `./data/ffhq_outputs`.
 ---
 
 ## Evaluating the Generated Images
@@ -78,14 +73,14 @@ python evaluate.py \
 ```bash
 python evaluate.py \
   evaluation.folder_type=single \
-  evaluation.data_folder=./results/adversarial_examples \
-  evaluation.log_dir=./logs/evaluation_results
+  evaluation.data_folder=./data/ffhq_outputs \
+  evaluation.log_dir=./data/logs/ffhq_logs
 ```
 
 **Explanation:**
 
-- This command runs `evaluate.py` using the results from `./results/adversarial_examples`.
-- The evaluation metrics and logs will be saved in `./logs/evaluation_results`.
+- This command runs `evaluate.py` using the results from `./data/ffhq_outputs`.
+- The evaluation metrics and logs will be saved in `./data/logs/ffhq_logs`.
 
 ---
 
