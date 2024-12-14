@@ -13,8 +13,8 @@ evaluation:
 
 # Thresholds for evaluation
 thresholds:
-  irse50: 0.5
-  ir152: 0.45
-  facenet: 0.35
-  cur_face: 0.44
-  mobile_face: 0.39
+  irse50: 0.412
+  ir152: 0.42
+  facenet: 0.36
+  cur_face: 0.43
+  mobile_face: 0.425

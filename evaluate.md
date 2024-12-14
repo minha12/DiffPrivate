@@ -1,6 +1,59 @@
 # Evaluation Guide
 
-This guide provides instructions on how to generate adversarial examples using `run-dpp.py` with custom input and output paths and then evaluate the generated images using `evaluate.py`. The evaluation includes metrics from different facial recognition models and the LPIPS metric.
+## Dataset Preparation
+
+Before running the evaluation, you can choose between full datasets or smaller subsets for initial experiments:
+
+### FFHQ Dataset
+#### Full Dataset (70,000 images)
+1. Download the dataset from [Google Drive](https://drive.google.com/file/d/1KUxJ-G6CBFzYpeg4PfTL93N8YybNExA7/view?usp=drive_link)
+2. Create the directory and unzip the dataset:
+   ```bash
+   mkdir -p ./data/ffhq
+   unzip ffhq_256.zip -d ./data/ffhq
+   ```
+
+#### Subset (200 images)
+1. Download the subset from [Google Drive](https://drive.google.com/file/d/1jmX5WZK5Zyuod7VBRZ87kzNiTBMscmZG/view?usp=drive_link)
+2. Create the directory and unzip the dataset:
+   ```bash
+   mkdir -p ./data/ffhq_256_subset
+   unzip ffhq_256_subset.zip -d ./data/ffhq_256_subset
+   ```
+
+### CelebA-HQ Dataset
+#### Full Dataset (30,000 images)
+1. Download the dataset from [Google Drive](https://drive.google.com/file/d/1hKK99bKgH9UzmdNcDwWYwxpZUqkoo0Lj/view?usp=drive_link)
+2. Create the directory and unzip the dataset:
+   ```bash
+   mkdir -p ./data/celeba_hq
+   unzip celeba_hq_256.zip -d ./data/celeba_hq
+   ```
+
+#### Subset (200 images)
+1. Download the subset from [Google Drive](https://drive.google.com/file/d/1XXqxCetWZipHbmvIfMUU4dUWK02xgCl4/view?usp=drive_link)
+2. Create the directory and unzip the dataset:
+   ```bash
+   mkdir -p ./data/celeba_hq_256_subset
+   unzip celeba_hq_256_subset.zip -d ./data/celeba_hq_256_subset
+   ```
+
+### Processing Time Estimates
+Using an NVIDIA A100 GPU:
+- Single image processing: 20-60 seconds
+- Subset datasets (200 images each): 1-3 hours
+- FFHQ full dataset (70,000 images): 16-48 days for sequential processing
+- CelebA-HQ full dataset (30,000 images): 7-21 days for sequential processing
+
+**Important Note on Large-Scale Processing**: 
+Processing the complete datasets is only feasible using High-Performance Computing (HPC) with SLURM parallel jobs:
+- Even with parallel processing on multiple GPUs using SLURM job arrays, complete dataset evaluation takes several days
+- We recommend using HPC facilities and splitting the workload into multiple parallel jobs
+- Example SLURM configuration and job array scripts will be provided separately **on request**
+
+**Note**: 
+- Google Drive links may have download restrictions due to rate limiting. If you encounter issues, try downloading at a different time.
+- Consider processing a subset of images for initial experiments due to the long processing times.
 
 ---
 
@@ -74,6 +127,7 @@ python evaluate.py \
 python evaluate.py \
   evaluation.folder_type=single \
   evaluation.data_folder=./data/ffhq_outputs \
+  evaluation.log_dir=./data/logs/celebahq_logs
   evaluation.log_dir=./data/logs/ffhq_logs
 ```
 

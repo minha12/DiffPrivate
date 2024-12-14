@@ -168,19 +168,26 @@ def main(cfg: DictConfig):
 
     if cfg.evaluation.folder_type in ["separate", "fawkes"]:
         log_filename = f"{os.path.basename(os.path.normpath(cfg.evaluation.adv_folder))}.txt"
-    elif cfg.evaluation.folder_type == "single":
-        log_filename = f"{os.path.basename(os.path.normpath(cfg.evaluation.data_folder))}.txt"
+    # elif cfg.evaluation.folder_type == "single":
+    #     log_filename = f"{os.path.basename(os.path.normpath(cfg.evaluation.data_folder))}.txt"
     else:
-        log_filename = "evaluation_log.txt"
+        log_filename = "report.txt"
 
-    log_path = os.path.join(cfg.evaluation.log_dir, log_filename)
+    log_report_path = os.path.join(cfg.evaluation.log_dir, log_filename)
 
-    with open(log_path, "a") as f:
+    with open(log_report_path, "a") as f:
         f.write("{:<15} {:<15} {:<17}\n".format(*headers))
         f.write("-" * 47 + "\n")
         for row in data:
             f.write("{:<15} {:<15} {:<17}\n".format(*row))
         f.write(f"\nAverage LPIPS distance: {avg_lpips:.4f}\n")
+
+    log_output_path = os.path.join(cfg.evaluation.log_dir, "output.txt")
+    # add the model names and success rate to the log file
+    with open(log_output_path, "a") as f:
+        f.write(f"Model names: {model_names}\n")
+        f.write(f"Success rate: {success_rates}\n")
+        f.write(f"Average distance: {avg_distances}\n")
 
 if __name__ == "__main__":
     main()
