@@ -4,11 +4,14 @@ import numpy as np
 from matplotlib.ticker import PercentFormatter
 
 import matplotlib as mpl
+import os
 
 # Use TrueType (Type 42) fonts to ensure embedding
 mpl.rcParams['pdf.fonttype'] = 42  # TrueType fonts
 mpl.rcParams['ps.fonttype'] = 42  # TrueType fonts
-mpl.rcParams['font.family'] = 'Helvetica'
+
+# Create the directory if it doesn't exist
+os.makedirs("./visualized", exist_ok=True)
 
 # Load the CSV file
 data = pd.read_csv("./experiments_cross/logs/summary_success_rates.txt", sep=",")
@@ -104,4 +107,4 @@ for attacker in attackers:
     plt.tight_layout(rect=[0, 0.03, 1, 0.95])
     plt.show()
     # Save the plot
-    fig.savefig(f"{attacker}.pdf", bbox_inches="tight")
+    fig.savefig(f"./visualized/{attacker}.pdf", bbox_inches="tight")

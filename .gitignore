@@ -17,8 +17,15 @@ data/ffhq
 
 src/DiffAE/
 
-slurm-*
-
 artifact-reference.md
 
 experiments_cross/
+
+slurm-logs/
+
+temp/
+
+src/scripts/pgd.py
+src/other_attacks/
+
+visualized/

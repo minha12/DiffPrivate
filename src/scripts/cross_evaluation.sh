@@ -13,12 +13,12 @@ mkdir -p "$LOG_DIR"
 
 # Loop through all subdirectories of the base directory
 for SUBDIR in "$BASE_DIR"/*; do
-  if [ -d "$SUBDIR" ]; then  # Check if it is a directory
+  if [ -d "$SUBDIR" ] && [ "$SUBDIR" != "$LOG_DIR" ]; then  # Check if it is a directory
     
     # Run the evaluation script with the subdirectory as the data folder
     # and the logs directory directly under the base directory
     echo "Evaluating folder: $SUBDIR"
-    python evaluate.py --data_folder "$SUBDIR" --log_dir "$LOG_DIR"
+    python src/scripts/evaluate.py evaluation.data_folder="$SUBDIR" evaluation.log_dir="$SUBDIR"
 
     # Echo a separator for readability
     echo "------------------------------------------------"
@@ -31,7 +31,7 @@ done
 
 # Loop through all subdirectories of the base directory
 for SUBDIR in "$BASE_DIR"/*; do
-  if [ -d "$SUBDIR" ]; then  # Check if it is a directory
+  if [ -d "$SUBDIR" ] && [ "$SUBDIR" != "$LOG_DIR" ]; then  # Check if it is a directory and not the log directory
     # Extract the folder name without the path
     FOLDER_NAME=$(basename "$SUBDIR")
 
