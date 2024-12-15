@@ -128,8 +128,8 @@ If you find this work useful in your research, please consider citing:
 @article{le2023diffprivate,
   title={DiffPrivate: Facial Privacy Protection with Diffusion Models},
   author={Le, Minh-Ha and Carlsson, Niklas},
-  journal={arXiv preprint arXiv:xxxx.xxxxx},
-  year={2023}
+  booktitle={Proceedings on Privacy Enhancing Technologies (PoPETs)},
+  year={2025}
 }
 ```
 
