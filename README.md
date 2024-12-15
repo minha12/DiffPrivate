@@ -7,8 +7,9 @@
 ![GitHub visitors](https://komarev.com/ghpvc/?username=DiffPrivate&label=visitors)
 ![GitHub stars](https://badgen.net/github/stars/minha12/DiffPrivate)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue)](#license)
+<!--
 [![ArXiv](https://img.shields.io/badge/arXiv-xxxx.xxxxx-b31b1b.svg)](https://arxiv.org/abs/xxxx.xxxxx)
-
+-->
 </div>
 
 ### Share us a :star: if this repo helps you!
@@ -18,9 +19,9 @@ This repository is the official implementation of **DiffPrivate**. If you have a
 ## Updates
 
 [**12/15/2024**] Code is public.
-
+<!--
 [**MM/DD/YYYY**] Paper is publicly accessible on [ArXiv](https://arxiv.org/abs/xxxx.xxxxx).
-
+-->
 [**12/01/2024**] Initial release.
 
 ## Table of Contents
