@@ -17,11 +17,11 @@ This repository is the official implementation of **DiffPrivate**. If you have a
 
 ## Updates
 
-[**MM/DD/YYYY**] Code is public.
+[**12/15/2024**] Code is public.
 
 [**MM/DD/YYYY**] Paper is publicly accessible on [ArXiv](https://arxiv.org/abs/xxxx.xxxxx).
 
-[**MM/DD/YYYY**] Initial release.
+[**12/01/2024**] Initial release.
 
 ## Table of Contents
 
