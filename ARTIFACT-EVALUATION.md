@@ -8,7 +8,28 @@ Requested Badge: **Available**, **Functional**, **Reproduced**
 
 ## Description
 
-This artifact provides the implementation of DiffPrivate, a framework for protecting facial privacy using diffusion models. The codebase includes scripts for generating privacy-preserving facial images and evaluating their effectiveness against multiple facial recognition systems. The implementation requires Python 3.8, CUDA 11.3, and an NVIDIA GPU with 16GB+ VRAM. Our evaluation framework measures both the attack success rates against five facial recognition models (IR-SE50, IR152, FaceNet, CurricularFace, MobileFaceNet) and the visual quality using LPIPS metric. The artifact includes configuration files, pretrained models, and detailed instructions for reproducing our experimental results on standard facial datasets.
+This artifact provides the implementation of DiffPrivate, a framework for protecting facial privacy using diffusion models. The codebase includes scripts for generating privacy-preserving facial images and evaluating their effectiveness against multiple facial recognition systems. The implementation requires Python 3.8, CUDA 11.3, and an NVIDIA GPU with 16GB+ VRAM. Our evaluation framework focuses on reproducing three main criteria:
+
+1. Privacy Protection Rate and Image Quality: Measuring attack success rates against five facial recognition models (IR-SE50, IR152, FaceNet, CurricularFace, MobileFaceNet) and visual quality using LPIPS metric.
+
+2. Cross Evaluation for Transferability: Assessing how well the privacy protection transfers across different facial recognition models through extensive cross-model evaluations.
+
+3. Resistance Against Purification Methods: Evaluating the robustness of our privacy protection against various image purification techniques.
+
+The cross evaluation is highly computationally intensive - to fully reproduce our exhaustive cross evaluations, we conducted the evaluation on a HPC cluster with SLURM job scheduling and access to multiple NVIDIA A100 GPUs. We recommend the same configurations for reproducing these results. The artifact includes configuration files, pretrained models, and detailed instructions for reproducing our experimental results on standard facial datasets.
+
+**Important Note on Large-Scale Processing**: 
+Processing the complete datasets is only feasible using High-Performance Computing (HPC) with SLURM parallel jobs:
+- Even with parallel processing on multiple GPUs using SLURM job arrays, complete dataset evaluation takes several days
+- We recommend using HPC facilities and splitting the workload into multiple parallel jobs
+- Example SLURM configuration and job array scripts are provided
+
+**Processing Time Estimates**:
+Using an NVIDIA A100 GPU:
+- Single image processing: 20-60 seconds
+- Subset datasets (200 images each): 1-3 hours
+- FFHQ full dataset (70,000 images): 16-48 days for sequential processing
+- CelebA-HQ full dataset (30,000 images): 7-21 days for sequential processing
 
 ### Security/Privacy Issues and Ethical Concerns
 
@@ -20,12 +41,12 @@ Our artifact does not contain any malicious data or unsafe information. All imag
 
 ### Hardware Requirements
 
-#### 1. Protection Evaluation (Section 1)
+#### 1. Protection Evaluation (Section 1,3)
 
 - **GPU:** NVIDIA GPU with at least 16GB VRAM (e.g., RTX 2080 Ti or higher).
 - **CPU:** Modern multi-core processor.
 - **RAM:** At least 32GB recommended.
-- **Estimated Time:** Approximately 2 hours to reproduce results for Table 1.
+- **Estimated Time:** Several hours to days, depending on computing resources for Table 1.
 
 #### 2. Cross Evaluation (Section 2)
 
@@ -84,20 +105,51 @@ pip install -r requirements.txt
 
 ### Step 4: Prepare the Dataset
 
-Place your facial image dataset in the appropriate directory.
+Before running the evaluation, you can choose between full datasets or smaller subsets for initial experiments:
 
-For example, using the FFHQ dataset:
+### FFHQ Dataset
+#### Full Dataset (70,000 images)
+1. Download the dataset from [Google Drive](https://drive.google.com/file/d/1KUxJ-G6CBFzYpeg4PfTL93N8YybNExA7/view?usp=drive_link)
+2. Create the directory and unzip the dataset:
+   ```bash
+   mkdir -p ./data/ffhq
+   unzip ffhq_256.zip -d ./data/ffhq
+   ```
 
-```bash
-mkdir -p data/ffhq
-# Place your images (e.g., .jpg files) into the data/ffhq directory
-```
+#### Subset (200 images)
+1. Download the subset from [Google Drive](https://drive.google.com/file/d/1jmX5WZK5Zyuod7VBRZ87kzNiTBMscmZG/view?usp=drive_link)
+2. Create the directory and unzip the dataset:
+   ```bash
+   mkdir -p ./data/ffhq_256_subset
+   unzip ffhq_256_subset.zip -d ./data/ffhq_256_subset
+   ```
+
+### CelebA-HQ Dataset
+#### Full Dataset (30,000 images)
+1. Download the dataset from [Google Drive](https://drive.google.com/file/d/1hKK99bKgH9UzmdNcDwWYwxpZUqkoo0Lj/view?usp=drive_link)
+2. Create the directory and unzip the dataset:
+   ```bash
+   mkdir -p ./data/celeba_hq
+   unzip celeba_hq_256.zip -d ./data/celeba_hq
+   ```
+
+#### Subset (200 images)
+1. Download the subset from [Google Drive](https://drive.google.com/file/d/1XXqxCetWZipHbmvIfMUU4dUWK02xgCl4/view?usp=drive_link)
+2. Create the directory and unzip the dataset:
+   ```bash
+   mkdir -p ./data/celeba_hq_256_subset
+   unzip celeba_hq_256_subset.zip -d ./data/celeba_hq_256_subset
+   ```
+
+**Note**: 
+- Google Drive links may have download restrictions due to rate limiting. If you encounter issues, try downloading at a different time.
+- Consider processing a subset of images for initial experiments due to the long processing times.
 
 ---
 
 ## Artifact Evaluation
 
-### Section 1: Current Evaluation (Reproducing Table 1)
+### Section 1: Protection Evaluation (Reproducing Table 1)
 
 In this section, we will run the evaluation script on a small dataset to reproduce the results presented in Table 1 of the paper.
 
@@ -220,6 +272,47 @@ python src/scripts/vis_cross_eval.py
 
 ---
 
+### Section 3: Purification Methods Evaluation (Reproducing Figure 8)
+
+This section evaluates how different purification methods affect our privacy protection technique, reproducing the results from Figure 8 in the paper.
+
+#### Step 1: Set Data Directories
+
+Before running the purification experiments, ensure the correct data paths are set in `src/scripts/purify_and_evaluate.sh`:
+
+```bash
+# Configure data directories in the script
+ORIGINAL_DATA_DIR="./data/demo/images"    # Directory with original images
+PROTECTED_DATA_DIR="./data/output"        # Directory with protected images
+OUTPUT_DIR="./experiment_purify"          # Directory for experiment results
+```
+
+These paths should point to:
+- Original facial images
+- Protected images generated from previous steps
+- Output directory for purification results
+
+#### Step 2: Run Purification and Evaluation
+
+Make the script executable and run:
+
+```bash
+chmod +x src/scripts/purify_and_evaluate.sh
+bash src/scripts/purify_and_evaluate.sh
+```
+
+The script will:
+1. Apply various purification methods to protected images
+2. Evaluate each method against multiple facial recognition models
+3. Generate a summary table in both file and terminal output
+
+#### Step 3: View Results
+
+Results are also saved to `./experiment_purify/summary_success_rates.txt`.
+
+
+---
+
 ## Expected Results
 
 ### Section 1: Protection Evaluation
@@ -230,16 +323,31 @@ python src/scripts/vis_cross_eval.py
 - **Metrics:**
   - Success rates against each facial recognition model.
   - Average LPIPS distance indicating visual similarity.
+  ### Section 1: Protection Evaluation
 
-### Section 2: Cross Evaluation
+  - **Outputs:**
+    - `logs/output.txt`: Detailed evaluation metrics.
+    - `logs/report.txt`: Aggregated results corresponding to Table 1.
+  - **Metrics:**
+    - Success rates against each facial recognition model.
+    - Average LPIPS distance indicating visual similarity.
 
-- **Outputs:**
-  - `experiments_cross/logs/summary_success_rates.txt`: Aggregated success rates.
-  - Visualization files generated by `vis_cross_eval.py`.
-- **Metrics:**
-  - Cross-model attack success rates.
-  - Plots showing the performance across different attacker-victim pairs.
+  ### Section 2: Cross Evaluation
 
+  - **Outputs:**
+    - `experiments_cross/logs/summary_success_rates.txt`: Aggregated success rates.
+    - Visualization files generated by `vis_cross_eval.py`.
+  - **Metrics:**
+    - Cross-model attack success rates.
+    - Plots showing the performance across different attacker-victim pairs.
+
+  ### Section 3: Purification Methods Evaluation
+
+  - **Outputs:**
+    - `experiment_purify/summary_success_rates.txt`: Detailed purification results.
+  - **Metrics:**
+    - Success rates for each purification method.
+    - Comparative performance across facial recognition models.
 ---
 
 ## Notes and Troubleshooting

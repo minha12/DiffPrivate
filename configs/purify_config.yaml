@@ -1,0 +1,14 @@
+
+defaults:
+  - _self_
+
+defense:
+  input_path: "./data/output"       # Path to the input images
+  output_path: "./experiment_purify"  # Path to save processed images
+  preprocessors:
+    - "jpeg_compression"
+    - "total_var_min"
+    - "feature_squeezing"
+    - "spatial_smoothing"
+    - "gaussian_blur"
+    - "random_noise"
