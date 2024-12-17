@@ -3,7 +3,7 @@ defaults:
 
 # Paths and directories
 paths:
-  save_dir: "output"
+  save_dir: "data/output"
   images_root: "./data/demo/images"
   target_image: "./data/target_imgs/00187.jpg"
   pretrained_diffusion_path: "stabilityai/stable-diffusion-2-base"
