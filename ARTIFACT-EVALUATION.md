@@ -100,6 +100,7 @@ Download and install from [Miniforge3 GitHub](https://github.com/conda-forge/min
 ```bash
 conda create -n diffprivate python=3.8
 conda activate diffprivate
+pip install torch==1.12.1+cu113 torchvision==0.13.1+cu113 torchaudio==0.12.1+cu113 -f https://download.pytorch.org/whl/torch_stable.html
 pip install -r requirements.txt
 ```
 
