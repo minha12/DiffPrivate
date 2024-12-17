@@ -98,7 +98,7 @@ Download and install from [Miniforge3 GitHub](https://github.com/conda-forge/min
 ### Step 3: Create and Activate the Conda Environment
 
 ```bash
-conda env create -n diffprivate python=3.8
+conda create -n diffprivate python=3.8
 conda activate diffprivate
 pip install -r requirements.txt
 ```
