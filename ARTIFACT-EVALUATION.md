@@ -151,7 +151,7 @@ Before running the evaluation, you can choose between full datasets or smaller s
 
 ### Section 1: Protection Evaluation (Reproducing Table 1)
 
-In this section, we will run the evaluation script on a small dataset to reproduce the results presented in Table 1 of the paper.
+In this section, we will run the evaluation script on the FFHQ dataset to reproduce the results presented in Table 1 of the paper.
 
 #### Step 1: Run the Evaluation Script
 
