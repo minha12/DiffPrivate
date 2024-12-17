@@ -323,16 +323,8 @@ Results are also saved to `./experiment_purify/summary_success_rates.txt`.
 - **Metrics:**
   - Success rates against each facial recognition model.
   - Average LPIPS distance indicating visual similarity.
-  ### Section 1: Protection Evaluation
 
-  - **Outputs:**
-    - `logs/output.txt`: Detailed evaluation metrics.
-    - `logs/report.txt`: Aggregated results corresponding to Table 1.
-  - **Metrics:**
-    - Success rates against each facial recognition model.
-    - Average LPIPS distance indicating visual similarity.
-
-  ### Section 2: Cross Evaluation
+### Section 2: Cross Evaluation
 
   - **Outputs:**
     - `experiments_cross/logs/summary_success_rates.txt`: Aggregated success rates.
@@ -341,7 +333,7 @@ Results are also saved to `./experiment_purify/summary_success_rates.txt`.
     - Cross-model attack success rates.
     - Plots showing the performance across different attacker-victim pairs.
 
-  ### Section 3: Purification Methods Evaluation
+### Section 3: Purification Methods Evaluation
 
   - **Outputs:**
     - `experiment_purify/summary_success_rates.txt`: Detailed purification results.
