@@ -1,7 +1,8 @@
 <div align="center">
-
+<!--
 <h1><a href="https://arxiv.org/abs/xxxx.xxxxx">DiffPrivate: Facial Privacy Protection with Diffusion Models</a></h1>
-
+-->
+<h1><a>DiffPrivate: Facial Privacy Protection with Diffusion Models</a></h1>
 **[Minh-Ha Le](mailto:minh-ha.le@liu.se), [Niklas Carlsson](mailto:niklas.carlsson@liu.se)**
 
 ![GitHub visitors](https://komarev.com/ghpvc/?username=DiffPrivate&label=visitors)
