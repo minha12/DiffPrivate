@@ -98,10 +98,7 @@ Download and install from [Miniforge3 GitHub](https://github.com/conda-forge/min
 ### Step 3: Create and Activate the Conda Environment
 
 ```bash
-conda create -n diffprivate python=3.8
-conda activate diffprivate
-pip install torch==1.12.1+cu113 torchvision==0.13.1+cu113 torchaudio==0.12.1+cu113 -f https://download.pytorch.org/whl/torch_stable.html
-pip install -r requirements.txt
+conda env create -f environment.yml
 ```
 
 ### Step 4: Prepare the Dataset
@@ -154,7 +151,26 @@ Before running the evaluation, you can choose between full datasets or smaller s
 
 In this section, we will run the evaluation script on the FFHQ dataset to reproduce the results presented in Table 1 of the paper.
 
-#### Step 1: Run the Evaluation Script
+#### Step 1: Create Protected Image
+
+To generate privacy-protected images using **DiffPrivate Perturb**, run:
+
+```bash
+python run-dpp.py paths.images_root=<path_to_images> paths.save_dir=<save_path>
+```
+
+- Replace `<path_to_images>` with the path to your images.
+- Replace `<save_path>` with the directory where you want to save the results.
+
+Examples:
+
+```bash
+python run-dpp.py paths.images_root=./data/ffhq paths.save_dir=./data/output
+```
+
+The results, including the protected images and logs, will be saved in the specified `save_dir`.
+
+#### Step 2: Run the Evaluation Script
 
 ```bash
 python src/scripts/evaluate.py evaluation.data_folder=data/ffhq evaluation.log_dir=logs
@@ -165,7 +181,7 @@ python src/scripts/evaluate.py evaluation.data_folder=data/ffhq evaluation.log_d
 - The `evaluate.py` script processes image pairs and evaluates the effectiveness of the privacy protection.
 - Ensure that the `data_folder` contains the original and adversarial images as per the script's expectations.
 
-#### Step 2: Retrieve the Results
+#### Step 3: Retrieve the Results
 
 - After the script completes, results will be saved in the `logs` directory.
 - The `output.txt` and `report.txt` files contain the success rates against different facial recognition models and the average LPIPS distances.

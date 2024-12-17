@@ -3,6 +3,7 @@ __pycache__
 **/__pycache__
 model-weights/
 outputs/
+output/
 
 *.pyc
 *.pyo
