@@ -19,6 +19,7 @@ This repository is the official implementation of **DiffPrivate**. If you have a
 
 ## Updates
 [**02/03/2025**] Added Docker support.
+
 [**12/15/2024**] Code is public.
 <!--
 [**MM/DD/YYYY**] Paper is publicly accessible on [ArXiv](https://arxiv.org/abs/xxxx.xxxxx).
