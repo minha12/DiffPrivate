@@ -21,14 +21,9 @@ RUN chmod +x /app/src/scripts/setup.sh && \
     /app/src/scripts/setup.sh
 
 # Set default environment variables
-ENV PATH /opt/conda/envs/diffinf/bin:$PATH
+ENV PATH /opt/conda/envs/diffprivate/bin:$PATH
 ENV LD_LIBRARY_PATH /usr/local/cuda/lib64:$LD_LIBRARY_PATH
 ENV CUDA_VISIBLE_DEVICES=0
-
-# Verify CUDA and PyTorch installation
-RUN python -c "import torch; print(f'PyTorch version: {torch.__version__}'); \
-    print(f'CUDA available: {torch.cuda.is_available()}'); \
-    print(f'CUDA version: {torch.version.cuda}')"
 
 WORKDIR /app
 CMD ["python"]
