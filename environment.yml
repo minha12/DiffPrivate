@@ -31,3 +31,4 @@ dependencies:
     - lmdb~=1.6.2
     - criteria==0.1.5
     - huggingface_hub<0.26.0
+    - gdown
