@@ -31,7 +31,7 @@ def download_and_extract(file_id, output_zip, extract_path):
 def main():
     # File IDs from the Google Drive links
     ffhq_file_id = '1KUxJ-G6CBFzYpeg4PfTL93N8YybNExA7'
-    celeba_hq_file_id = '1hKK99bKgH9UzmdNcDwWYwxpZUqkoo0Lj'
+    celeba_hq_file_id = '1Fbqp_4zkNCj2SE1pcJUs4K3HS_yhFCqB'
     
     # Get project root path and set data directory
     project_root = get_project_root()

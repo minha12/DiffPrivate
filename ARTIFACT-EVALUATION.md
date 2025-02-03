@@ -139,7 +139,7 @@ Before running the evaluation, you can choose between full datasets or smaller s
 
 ### CelebA-HQ Dataset
 #### Full Dataset (30,000 images)
-1. Download the dataset from [Google Drive](https://drive.google.com/file/d/1hKK99bKgH9UzmdNcDwWYwxpZUqkoo0Lj/view?usp=drive_link)
+1. Download the dataset from [Google Drive](https://drive.google.com/file/d/1Fbqp_4zkNCj2SE1pcJUs4K3HS_yhFCqB/view?usp=sharing)
 2. Create the directory and unzip the dataset:
    ```bash
    mkdir -p ./data/celeba_hq
