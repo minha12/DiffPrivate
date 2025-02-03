@@ -19,4 +19,4 @@ conda init bash
 conda install -y mamba -n base -c conda-forge
 
 # Create conda environment
-mamba env create -f /tmp/environment.yaml
+mamba env create -f /tmp/environment.yml

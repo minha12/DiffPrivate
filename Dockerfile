@@ -11,7 +11,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy configuration files first
-COPY environment.yaml /tmp/environment.yaml
+COPY environment.yml /tmp/environment.yml
 
 # Copy scripts directory
 COPY src/scripts /app/src/scripts
