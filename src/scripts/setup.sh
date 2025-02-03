@@ -1,4 +1,3 @@
-
 #!/bin/bash
 
 # Set up conda directory
@@ -20,3 +19,7 @@ conda install -y mamba -n base -c conda-forge
 
 # Create conda environment
 mamba env create -f /tmp/environment.yml
+
+# Add conda environment auto-activation to .bashrc
+echo "# Auto-activate conda environment" >> ~/.bashrc
+echo "conda activate diffprivate" >> ~/.bashrc
