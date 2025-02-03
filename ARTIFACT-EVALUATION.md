@@ -115,11 +115,11 @@ Before running the evaluation, you can choose between full datasets or smaller s
    ```
 
 #### Subset (200 images)
-1. Download the subset from [Google Drive](https://drive.google.com/file/d/1jmX5WZK5Zyuod7VBRZ87kzNiTBMscmZG/view?usp=drive_link)
-2. Create the directory and unzip the dataset:
+1. Create the directory and unzip the dataset:
    ```bash
-   mkdir -p ./data/ffhq_256_200
-   unzip ffhq_256_200.zip -d ./data/ffhq_256_subset
+   mkdir -p ./data/ffhq_256_subset
+   cd ./data
+   unzip ffhq_256_subset.zip
    ```
 
 ### CelebA-HQ Dataset
@@ -132,11 +132,11 @@ Before running the evaluation, you can choose between full datasets or smaller s
    ```
 
 #### Subset (200 images)
-1. Download the subset from [Google Drive](https://drive.google.com/file/d/1XXqxCetWZipHbmvIfMUU4dUWK02xgCl4/view?usp=drive_link)
-2. Create the directory and unzip the dataset:
+1. Create the directory and unzip the dataset:
    ```bash
-   mkdir -p ./data/celeba_hq_256_200
-   unzip celeba_hq_256_200.zip -d ./data/celeba_hq_256_subset
+   mkdir -p ./data/celeba_hq_256_subset
+   cd ./data
+   unzip celeba_hq_256_subset.zip
    ```
 
 **Note**: 
@@ -165,7 +165,7 @@ python run-dpp.py paths.images_root=<path_to_images> paths.save_dir=<save_path>
 Examples:
 
 ```bash
-python run-dpp.py paths.images_root=./data/ffhq paths.save_dir=./data/output
+python run-dpp.py paths.images_root=./data/ffhq paths.save_dir=./data/output_ffhq
 ```
 
 The results, including the protected images and logs, will be saved in the specified `save_dir`.
