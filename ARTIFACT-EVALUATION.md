@@ -118,8 +118,8 @@ Before running the evaluation, you can choose between full datasets or smaller s
 1. Download the subset from [Google Drive](https://drive.google.com/file/d/1jmX5WZK5Zyuod7VBRZ87kzNiTBMscmZG/view?usp=drive_link)
 2. Create the directory and unzip the dataset:
    ```bash
-   mkdir -p ./data/ffhq_256_subset
-   unzip ffhq_256_subset.zip -d ./data/ffhq_256_subset
+   mkdir -p ./data/ffhq_256_200
+   unzip ffhq_256_200.zip -d ./data/ffhq_256_subset
    ```
 
 ### CelebA-HQ Dataset
@@ -135,8 +135,8 @@ Before running the evaluation, you can choose between full datasets or smaller s
 1. Download the subset from [Google Drive](https://drive.google.com/file/d/1XXqxCetWZipHbmvIfMUU4dUWK02xgCl4/view?usp=drive_link)
 2. Create the directory and unzip the dataset:
    ```bash
-   mkdir -p ./data/celeba_hq_256_subset
-   unzip celeba_hq_256_subset.zip -d ./data/celeba_hq_256_subset
+   mkdir -p ./data/celeba_hq_256_200
+   unzip celeba_hq_256_200.zip -d ./data/celeba_hq_256_subset
    ```
 
 **Note**: 
