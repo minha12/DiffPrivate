@@ -91,17 +91,39 @@ git clone https://github.com/minha12/DiffPrivate.git
 cd DiffPrivate
 ```
 
-### Step 2: Install Miniforge3 (if not already installed)
+### Step 2: Set Up Environment (Choose A or B)
 
-Download and install from [Miniforge3 GitHub](https://github.com/conda-forge/miniforge/releases/latest).
-
-### Step 3: Create and Activate the Conda Environment
+#### A. Using Setup Script (Recommended)
 
 ```bash
-conda env create -f environment.yml
+bash src/scripts/setup.sh
+
+conda activate diffprivate
 ```
 
-### Step 4: Prepare the Dataset
+#### B. Using Docker
+
+1. Build the Docker image:
+```bash
+docker build . -t diffprivate:latest
+```
+
+2. Run the container with GPU support:
+```bash
+docker run -d --gpus all --name diffprivate_container -v "$(pwd)/../DiffPrivate:/app/DiffPrivate" diffprivate:latest tail -f /dev/null
+```
+
+3. Access the container:
+```bash
+docker exec -it diffprivate_container bash
+```
+
+Now you can run Python commands directly inside the container, for example:
+```bash
+python run-dpp.py
+```
+
+### Step 3: Prepare the Dataset
 
 Before running the evaluation, you can choose between full datasets or smaller subsets for initial experiments:
 
