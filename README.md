@@ -50,11 +50,43 @@ This repository is the official implementation of **DiffPrivate**. If you have a
    - CUDA 11.3
    - cuDNN 8.4.1
 
-   To install the required Python packages, run:
+## Environment Setup
 
-   ```bash
-   conda env create -f environment.yml
-   ```
+### Option A: Using Setup Script (Recommended)
+
+```bash
+bash src/scripts/setup.sh
+conda activate diffprivate
+```
+
+### Option B: Using Docker
+
+1. Build the Docker image:
+```bash
+docker build . -t diffprivate:latest
+```
+
+or pull the Docker image from our repository:
+
+```bash
+docker pull hale0007/diffprivate:1.0.1
+docker tag hale0007/diffprivate:1.0.1 diffprivate:latest
+```
+
+2. Run the container with GPU support:
+```bash
+docker run -d --gpus all --name diffprivate_container -v "$(pwd)/../DiffPrivate:/app/DiffPrivate" diffprivate:latest tail -f /dev/null
+```
+
+3. Access the container:
+```bash
+docker exec -it diffprivate_container bash
+```
+
+Now you can run Python commands directly inside the container, for example:
+```bash
+python run-dpp.py
+```
 
 3. **Datasets**
    - Sample datasets are provided in the `demo` directory for quick testing.
