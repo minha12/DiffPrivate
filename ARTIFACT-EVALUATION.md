@@ -67,19 +67,6 @@ Our artifact does not contain any malicious data or unsafe information. All imag
 - **Environment Management:** Miniforge3 or Anaconda.
 - **Slurm:** For job scheduling on HPC systems (Section 2 only).
 
-#### Python Dependencies
-
-A `requirements.txt` file is provided. Key packages include:
-
-- `torch`
-- `torchvision`
-- `tqdm`
-- `numpy`
-- `pandas`
-- `matplotlib`
-- `hydra-core`
-- `lpips`
-
 ---
 
 ## Environment Setup
