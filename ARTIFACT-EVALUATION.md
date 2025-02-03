@@ -122,11 +122,9 @@ Before running the evaluation, you can choose between full datasets or smaller s
 
 ### FFHQ Dataset
 #### Full Dataset (70,000 images)
-1. Download the dataset from [Google Drive](https://drive.google.com/file/d/1KUxJ-G6CBFzYpeg4PfTL93N8YybNExA7/view?usp=drive_link)
-2. Create the directory and unzip the dataset:
+1. Download and unzip the dataset:
    ```bash
-   mkdir -p ./data/ffhq
-   unzip ffhq_256.zip -d ./data/ffhq
+   python src/scripts/download_datasets.py 
    ```
 
 #### Subset (200 images)
@@ -139,11 +137,9 @@ Before running the evaluation, you can choose between full datasets or smaller s
 
 ### CelebA-HQ Dataset
 #### Full Dataset (30,000 images)
-1. Download the dataset from [Google Drive](https://drive.google.com/file/d/1Fbqp_4zkNCj2SE1pcJUs4K3HS_yhFCqB/view?usp=sharing)
-2. Create the directory and unzip the dataset:
+1. Download and unzip the dataset (don't have to do this again if command already run):
    ```bash
-   mkdir -p ./data/celeba_hq
-   unzip celeba_hq_256.zip -d ./data/celeba_hq
+   python src/scripts/download_datasets.py
    ```
 
 #### Subset (200 images)
