@@ -2,7 +2,7 @@
 
 Paper title: **DiffPrivate: Facial Privacy Protection with Diffusion Models**
 
-Artifacts HotCRP Id: **#17**
+Artifacts HotCRP Id: **#21**
 
 Requested Badge: **Available**, **Functional**, **Reproduced**
 
