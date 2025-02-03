@@ -17,8 +17,14 @@ conda init bash
 # Install mamba
 conda install -y mamba -n base -c conda-forge
 
-# Create conda environment
-mamba env create -f /tmp/environment.yml
+# Check environment.yml location and create conda environment
+if [ -f "/tmp/environment.yml" ]; then
+    ENV_FILE="/tmp/environment.yml"
+else
+    ENV_FILE="environment.yml"
+fi
+
+mamba env create -f $ENV_FILE
 
 # Add conda environment auto-activation to .bashrc
 echo "# Auto-activate conda environment" >> ~/.bashrc
