@@ -227,12 +227,6 @@ Example adjustments:
   #SBATCH -t 48:00:00  # Set appropriate time limit
   ```
 
-- **Partition or QoS:**
-
-  ```bash
-  #SBATCH -p your_partition
-  ```
-
 #### Step 2: Submit Jobs to Slurm
 
 Make sure the script is executable:
@@ -241,22 +235,32 @@ Make sure the script is executable:
 chmod +x src/scripts/batch-job-slurm.sh
 ```
 
-Execute the script:
+Execute the script by default values:
 
 ```bash
-bash src/scripts/batch-job-slurm.sh ./data/ffhq
+bash src/scripts/batch-job-slurm.sh
 ```
 
-or execute on a subset:
+or execute with specific arguments:
 
 ```bash
-bash src/scripts/batch-job-slurm.sh ./data/ffhq_256_subset
+bash batch-job-slurm.sh \
+  --image_dir=./data/ffhq_256_subset \
+  --batch_size=200 \
+  --account=<your_account> \
+  --gpus=1 \
+  --constraint=thin \
+  --time=72:00:00 \
+  --module=Miniforge3 \
+  --conda_env=diffprivate
 ```
+
 This script:
-- Take a dataset argument (e.g. `./data/ffhq`)
-- Iterates over combinations of attacker and victim models.
-- Splits the dataset into batches.
-- Submits batch jobs for processing image batches using `sbatch`.
+- Processes all attacker-victim model pairs (5×5 matrix, excluding same-model pairs)
+- Divides datasets into batches for parallel processing
+- Submits SLURM jobs with specified computational resources
+- Stores results in experiment-specific directories
+- Handles job dependencies and cleanup automatically
 
 #### Step 3: Monitor Job Status
 
