@@ -243,11 +243,16 @@ chmod +x src/scripts/batch-job-slurm.sh
 Execute the script:
 
 ```bash
-bash src/scripts/batch-job-slurm.sh
+bash src/scripts/batch-job-slurm.sh ./data/ffhq
 ```
 
-This script:
+or execute on a subset:
 
+```bash
+bash src/scripts/batch-job-slurm.sh ./data/ffhq_256_subset
+```
+This script:
+- Take a dataset argument (e.g. `./data/ffhq`)
 - Iterates over combinations of attacker and victim models.
 - Splits the dataset into batches.
 - Submits batch jobs for processing image batches using `sbatch`.
