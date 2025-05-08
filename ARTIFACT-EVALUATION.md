@@ -209,6 +209,16 @@ python src/scripts/evaluate.py evaluation.data_folder=data/ffhq evaluation.log_d
 
 This section involves large-scale evaluation using multiple models and requires submitting batch jobs to a Slurm-managed HPC cluster.
 
+**Important**: Before proceeding, install the required conda environment on your HPC system using the setup script from Option A above.
+
+See `batch-job-slurm.sh` script for default values, for example module name (`Miniforge3`) and conda environment (`diffprivate`). You may need to adapt these parameters to match your HPC system's configuration:
+
+```bash
+--module_name=<your_conda_module>  # e.g., Anaconda3, miniconda3
+--conda_env=<your_env_name>         # The environment created by
+--constraint=<your_gpu_constraint> # in our system: thin|fat -> A100 40GB|80GB
+```
+
 #### Step 1: Configure the Slurm Batch Job Script
 
 Edit `src/scripts/batch-job-slurm.sh` to ensure that the `#SBATCH` directives match your HPC environment.
