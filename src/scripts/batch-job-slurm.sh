@@ -1,5 +1,12 @@
 #!/bin/bash
 
+# Parse command line argument for dataset
+if [ $# -ge 1 ]; then
+  dataset="$1"
+else
+  dataset="ffhq"  # Default dataset
+fi
+
 # Define thresholds for each model
 declare -A threshold_dict=(
     ["irse50"]=0.4
@@ -19,7 +26,6 @@ base_save_dir="experiments_cross"
 mkdir -p "${base_save_dir}"
 
 # Dataset and image directory configuration
-dataset="ffhq"
 image_dir="data/${dataset}"
 targeted_attack="True"
 
