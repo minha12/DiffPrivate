@@ -70,8 +70,8 @@ docker build . -t diffprivate:latest
 or pull the Docker image from our repository:
 
 ```bash
-docker pull hale0007/diffprivate:1.0.1
-docker tag hale0007/diffprivate:1.0.1 diffprivate:latest
+docker pull hale0007/diffprivate:latest
+docker tag hale0007/diffprivate:latest diffprivate:latest
 ```
 
 2. Run the container with GPU support:
