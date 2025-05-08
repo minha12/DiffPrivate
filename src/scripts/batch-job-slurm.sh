@@ -1,11 +1,14 @@
 #!/bin/bash
 
-# Parse command line argument for dataset
+# Parse command line argument for dataset path
 if [ $# -ge 1 ]; then
-  dataset="$1"
+  image_dir="$1"
 else
-  dataset="ffhq"  # Default dataset
+  image_dir="./data/ffhq"  # Default dataset path
 fi
+
+# Extract dataset name from path for naming purposes
+dataset=$(basename "${image_dir}")
 
 # Define thresholds for each model
 declare -A threshold_dict=(
@@ -25,8 +28,7 @@ base_save_dir="experiments_cross"
 # Create base_save_dir if it does not exist
 mkdir -p "${base_save_dir}"
 
-# Dataset and image directory configuration
-image_dir="data/${dataset}"
+# Set targeted attack flag
 targeted_attack="True"
 
 # **Define the batch size variable**
