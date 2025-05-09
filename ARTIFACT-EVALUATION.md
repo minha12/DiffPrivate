@@ -215,7 +215,7 @@ See `run_cross_attacks.sh` script for default values, for example module name (`
 
 ```bash
 --module_name=<your_conda_module>  # e.g., Anaconda3, miniconda3
---conda_env=<your_env_name>         # The environment created by
+--conda_env=<your_env_name>         # the conda environment created 
 --constraint=<your_gpu_constraint> # in our system: thin|fat -> A100 40GB|80GB
 ```
 
