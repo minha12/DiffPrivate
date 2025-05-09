@@ -8,6 +8,7 @@ constraint="thin"
 time="72:00:00"
 module_name="Miniforge3"
 conda_env="diffprivate"
+execution_mode="slurm" # New parameter: "slurm" or "bash"
 
 # Parse command line arguments
 while [[ $# -gt 0 ]]; do
@@ -44,9 +45,17 @@ while [[ $# -gt 0 ]]; do
       conda_env="${1#*=}"
       shift
       ;;
+    --execution_mode=*) # New argument parsing
+      execution_mode="${1#*=}"
+      shift
+      if [[ "$execution_mode" != "slurm" && "$execution_mode" != "bash" ]]; then
+        echo "Error: --execution_mode must be 'slurm' or 'bash'."
+        exit 1
+      fi
+      ;;
     *)
       echo "Unknown parameter: $1"
-      echo "Usage: $0 [--image_dir=VALUE] [--batch_size=VALUE] [--account=VALUE] [--gpus=VALUE] [--constraint=VALUE] [--time=VALUE] [--module=VALUE] [--conda_env=VALUE]"
+      echo "Usage: $0 [--image_dir=VALUE] [--batch_size=VALUE] [--account=VALUE] [--gpus=VALUE] [--constraint=VALUE] [--time=VALUE] [--module=VALUE] [--conda_env=VALUE] [--execution_mode=VALUE]"
       exit 1
       ;;
   esac
@@ -56,10 +65,13 @@ done
 echo "Using parameters:"
 echo "  Dataset path: ${image_dir}"
 echo "  Batch size: ${batch_size}"
-echo "  SLURM account: ${account}"
-echo "  GPUs: ${gpus}"
-echo "  Constraint: ${constraint}"
-echo "  Time: ${time}"
+echo "  Execution mode: ${execution_mode}"
+if [ "$execution_mode" == "slurm" ]; then
+  echo "  SLURM account: ${account}"
+  echo "  GPUs: ${gpus}"
+  echo "  Constraint: ${constraint}"
+  echo "  Time: ${time}"
+fi
 echo "  Module: ${module_name}"
 echo "  Conda environment: ${conda_env}"
 
@@ -88,8 +100,12 @@ readarray -t files < <(find "${image_dir}" -name "*.jpg" | sort)
 num_files=${#files[@]}
 # Debugging statement
 echo "Found ${num_files} jpg files in ${image_dir}"
-# Create slurm-logs directory if it doesn't exist
+
+# Create slurm-logs directory if it doesn't exist (still useful for bash mode if scripts write there by mistake, or for future slurm use)
 mkdir -p slurm-logs
+# Create temp directory parent if it doesn't exist
+mkdir -p ./temp
+
 # Loop through all attacker models
 for attacker in "${models[@]}"; do
     echo "Working with attacker model: ${attacker}"
@@ -118,18 +134,36 @@ for attacker in "${models[@]}"; do
             for ((j=0; j<batch_size && i + j < num_files; j++)); do
                 cp "${files[$i + $j]}" "${temp_dir}"
             done
-            # Create a temporary sbatch script for the current batch
-            sbatch_script="${temp_dir}/sbatch_script_${batch_index}.sh"
-            cat << EOF > "${sbatch_script}"
+            # Create a temporary script for the current batch
+            # This script is compatible with both sbatch and bash execution
+            job_script="${temp_dir}/run_batch_${batch_index}.sh"
+            cat << EOF > "${job_script}"
 #!/bin/bash
 #SBATCH -A ${account}
 #SBATCH --gpus ${gpus}
 #SBATCH -C "${constraint}"
 #SBATCH -t ${time}
-#SBATCH --output=slurm-logs/slurm-%j.out  # Standard output log file
-#SBATCH --error=slurm-logs/slurm-%j.err   # Standard error log file
-module load ${module_name}
-conda activate ${conda_env}
+#SBATCH --output=slurm-logs/slurm-%j.out  # Standard output log file (ignored by bash)
+#SBATCH --error=slurm-logs/slurm-%j.err   # Standard error log file (ignored by bash)
+
+echo "Starting job for batch ${batch_index}: Attacker=${attacker}, Victim=${victim}"
+echo "Temporary image directory: ${temp_dir}"
+echo "Save directory: ${save_dir}"
+# These lines will attempt to run in bash mode too.
+# Ensure module and conda are available in your bash environment if not using SLURM.
+if command -v module &> /dev/null && [[ -n "${module_name}" ]]; then
+    echo "Loading module: ${module_name}"
+    module load ${module_name}
+else
+    echo "Module command not found or module_name not set. Skipping module load."
+fi
+if command -v conda &> /dev/null && [[ -n "${conda_env}" ]]; then
+    echo "Activating conda environment: ${conda_env}"
+    conda activate ${conda_env}
+else
+    echo "Conda command not found or conda_env not set. Skipping conda activation."
+fi
+
 # Run the Python script with parameters for the current batch
 python run-dpp.py \\
     paths.save_dir="${save_dir}" \\
@@ -141,15 +175,27 @@ python run-dpp.py \\
     attack.targeted_attack=${targeted_attack} \\
     attack.victim_threshold=${victim_threshold} \\
     model.ensemble=False
+
+echo "Python script finished for batch ${batch_index}."
 # Delete the temporary directory after job completion
+echo "Cleaning up temporary directory: ${temp_dir}"
 rm -rf "${temp_dir}"
+echo "Job for batch ${batch_index} completed."
 EOF
-            # Make the sbatch script executable
-            chmod +x "${sbatch_script}"
-            # Submit the sbatch script
-            echo "Submitting job: sbatch \"${sbatch_script}\""
-            sbatch "${sbatch_script}"
+            # Make the job script executable
+            chmod +x "${job_script}"
+
+            # Submit or run the job script based on execution_mode
+            if [ "${execution_mode}" == "slurm" ]; then
+                echo "Submitting SLURM job: sbatch \"${job_script}\""
+                sbatch "${job_script}"
+            elif [ "${execution_mode}" == "bash" ]; then
+                echo "Running job locally with bash: bash \"${job_script}\""
+                # Ensure the script runs sequentially and output is visible
+                bash "${job_script}"
+                echo "Local bash job finished: ${job_script}"
+            fi
         done
     done
 done
-echo "All combinations of cross-validation jobs have been submitted."
+echo "All jobs have been processed according to execution_mode: ${execution_mode}."
