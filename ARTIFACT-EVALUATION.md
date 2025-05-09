@@ -219,6 +219,24 @@ See `run_cross_attacks.sh` script for default values, for example module name (`
 --constraint=<your_gpu_constraint> # in our system: thin|fat -> A100 40GB|80GB
 ```
 
+**Note on Small-Scale Testing Without HPC**: While full evaluation requires an HPC cluster with SLURM, you can still test the cross-evaluation functionality on a regular machine with a small dataset. The script supports an `execution_mode` parameter that lets you choose between SLURM job submission and direct bash execution:
+
+```bash
+bash src/scripts/run_cross_attacks.sh \
+  --image_dir=./data/ffhq_256_subset \
+  --batch_size=10 \
+  --execution_mode=bash  # Use 'bash' for direct execution or 'slurm' (default) for HPC
+```
+
+With `--execution_mode=bash`, the script will run tasks sequentially on your local machine instead of submitting SLURM jobs. This allows you to verify functionality even without access to an HPC system, though processing will be much slower. For testing purposes, we recommend:
+
+- Using a very small subset of images (10-20 images)
+- Setting a small batch size (2-10)
+- Starting with fewer model combinations initially
+- Expecting longer processing times (minutes to hours depending on your GPU)
+
+Note that while this approach is suitable for verifying functionality, reproducing the full cross-evaluation results from the paper still requires HPC resources.
+
 #### Step 1: Configure the Slurm Batch Job Script
 
 Edit `src/scripts/run_cross_attacks.sh` to ensure that the `#SBATCH` directives match your HPC environment.
