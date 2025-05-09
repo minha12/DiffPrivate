@@ -224,14 +224,13 @@ See `run_cross_attacks.sh` script for default values, for example module name (`
 ```bash
 bash src/scripts/run_cross_attacks.sh \
   --image_dir=./data/ffhq_256_subset \
-  --batch_size=10 \
+  --batch_size=100 \ # batch_size does not make much sense in bash mode but make sure it is smaller than total number of files
   --execution_mode=bash  # Use 'bash' for direct execution or 'slurm' (default) for HPC
 ```
 
 With `--execution_mode=bash`, the script will run tasks sequentially on your local machine instead of submitting SLURM jobs. This allows you to verify functionality even without access to an HPC system, though processing will be much slower. For testing purposes, we recommend:
 
 - Using a very small subset of images (10-20 images)
-- Setting a small batch size (2-10)
 - Starting with fewer model combinations initially
 - Expecting longer processing times (minutes to hours depending on your GPU)
 
