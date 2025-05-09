@@ -211,7 +211,7 @@ This section involves large-scale evaluation using multiple models and requires 
 
 **Important**: Before proceeding, install the required conda environment on your HPC system using the setup script from Option A above.
 
-See `batch-job-slurm.sh` script for default values, for example module name (`Miniforge3`) and conda environment (`diffprivate`). You may need to adapt these parameters to match your HPC system's configuration:
+See `run_cross_attacks.sh` script for default values, for example module name (`Miniforge3`) and conda environment (`diffprivate`). You may need to adapt these parameters to match your HPC system's configuration:
 
 ```bash
 --module_name=<your_conda_module>  # e.g., Anaconda3, miniconda3
@@ -221,7 +221,7 @@ See `batch-job-slurm.sh` script for default values, for example module name (`Mi
 
 #### Step 1: Configure the Slurm Batch Job Script
 
-Edit `src/scripts/batch-job-slurm.sh` to ensure that the `#SBATCH` directives match your HPC environment.
+Edit `src/scripts/run_cross_attacks.sh` to ensure that the `#SBATCH` directives match your HPC environment.
 
 Example adjustments:
 
@@ -242,19 +242,19 @@ Example adjustments:
 Make sure the script is executable:
 
 ```bash
-chmod +x src/scripts/batch-job-slurm.sh
+chmod +x src/scripts/run_cross_attacks.sh
 ```
 
 Execute the script by default values:
 
 ```bash
-bash src/scripts/batch-job-slurm.sh
+bash src/scripts/run_cross_attacks.sh
 ```
 
 or execute with specific arguments:
 
 ```bash
-bash batch-job-slurm.sh \
+bash run_cross_attacks.sh \
   --image_dir=./data/ffhq_256_subset \
   --batch_size=200 \
   --account=<your_account> \
@@ -397,7 +397,7 @@ Results are also saved to `./experiment_purify/summary_success_rates.txt`.
   - The scripts expect specific naming conventions (e.g., pairs of images).
 
 - **Slurm Job Submission:**
-  - Adjust the `batch-job-slurm.sh` script according to your HPC environment.
+  - Adjust the `run_cross_attacks.sh` script according to your HPC environment.
   - Verify that module loads and environment activations work as intended.
 
 - **Script Execution Errors:**
